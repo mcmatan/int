@@ -32,6 +32,13 @@ A divide-and-conquer algorithm for finding elements in sorted collections. Time 
 - Compare target with middle element
 - Adjust search space based on comparison
 - Continue until element is found or space exhausted (for insertation point)
+- Continue while left is smaller or equal to right
+
+## Example Problems
+1. **Koko Eating Bananas**
+   - Create a list of possible bite sizes, and iterate through it searching for the best min bite size to take.
+   - We run a calculation on each index, which makes the decision rather move left or right
+   - We move until crossed, then take the overlapping side which in this case is left
 
 ## Template
 ```javascript
