@@ -76,3 +76,46 @@ to set the variable while crossing it,
           }
       }
 ```
+
+- On some cases, like the question "Median of Two Sorted Arrays" we iterate on one array of the two, and the second index is calculated by the one diff, since we know the total length from left
+- Also in the same question, we use a separator line index instead of actual number index, since one array could rather include all values or none. We then assume the prev num to be index -1 and next as current
+- Since we are using a separator index the right cursor is length instead of length -1;
+
+```javascript
+var findMedianSortedArrays = function(nums1, nums2) {
+       const totalLength = nums1.length + nums2.length;
+  const half = Math.ceil((totalLength) / 2);
+  const isEven = totalLength % 2 === 0;
+
+  const smallArray = nums1.length > nums2.length ? nums2 : nums1;
+  const bigArray = nums1.length > nums2.length ? nums1 : nums2;
+
+  let left = 0;
+  let right = smallArray.length; // since we can put a line before and after too, not just in between.
+  while (left <= right) {
+      const mid = Math.floor((left + right) / 2); // 1
+      const bigArrayMid = half - mid; // 2 -1 -1 = 0
+
+      const bigPrev = bigArrayMid === 0 ? -Infinity: bigArray[bigArrayMid -1];
+      const bigNext = bigArrayMid < bigArray.length ? bigArray[bigArrayMid] : Infinity;
+      const smallPrev = mid === 0 ? -Infinity: smallArray[mid -1];
+      const smallNext = mid < smallArray.length ? smallArray[mid] : Infinity;
+
+      if (smallPrev <= bigNext && bigPrev <= smallNext) {
+        if (!isEven) {
+          return Math.max(smallPrev, bigPrev);
+      } else {
+          const valueOne = Math.max(smallPrev, bigPrev);
+          const valueTwo = Math.min(bigNext, smallNext);
+          return (valueOne + valueTwo) /2
+      }
+      }
+
+      if (smallPrev > bigNext) {
+          right = mid - 1;
+      } else {
+          left = mid + 1;
+      }
+  }
+    }
+```
