@@ -57,3 +57,22 @@ const binarySearch = (nums, target) => {
     return left; // For insertion point
     // return -1; // For exact match only
 }
+```
+
+## Additional properties
+- When looking for a value that may not exist, and we want the closest one, we might need
+to set the variable while crossing it,
+
+```javascript
+    while (left <= right) {
+          const mid = Math.floor((left + right) / 2);
+          // when we last see this value, or the one the is smaller then it we save it. We want to continue to make sure the is actually the closest one which is smaller
+          // it would also find the matching one since numbers are unique in this case
+          if (existing[mid].timestamp <= timestamp) {
+            res = existing[mid].value
+            left = mid +1;
+          } else {
+            right = mid -1;
+          }
+      }
+```
