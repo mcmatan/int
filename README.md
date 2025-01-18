@@ -23,6 +23,8 @@ A monotonic stack maintains elements in either strictly increasing or strictly d
 - Problems involving "the first element that is greater/smaller"
 - Area calculations with constraints
 
+--------------------------------
+
 # Binary Search
 
 A divide-and-conquer algorithm for finding elements in sorted collections. Time complexity: O(log n)
@@ -117,5 +119,34 @@ var findMedianSortedArrays = function(nums1, nums2) {
           left = mid + 1;
       }
   }
+    }
+```
+
+
+--------------------------------
+
+# Linked List
+
+## Key Characteristics
+- Moving around would current = current.next
+- Iterating on reversing would usually use prev & current. Initially prev would be null
+Until it receives a value and being set as last.
+
+```javascript
+var reverseList = function(head) {
+        if (!head || !head.next) {
+            return head;
+        }
+
+        let prev = null;
+        let current = head;
+        while (current) { // we want the final assighment of prev
+            const tempNext = current.next;
+            current.next = prev;
+            prev = current;
+            current = tempNext;
+        }
+
+        return prev; // the current would be null
     }
 ```
