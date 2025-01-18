@@ -125,6 +125,11 @@ const reverseList = function(head) {
 ### Floyd's Cycle-Finding Algorithm (Floyd's Tortoise and Hare)
 - Uses two pointers: a slow pointer moving one step and a fast pointer moving two steps
 - If there's a cycle, the pointers will eventually meet
+- Finding the point of cycle: 
+    a. executing fast and slow (fast +2, slow+1) until they meet
+    b. keeping slow at current place, and creating another slow, moving them both until they meet. That would be the result.
+    c. This works because mathematically fast and slow meeting point distance from cycle point is always equal to starting point to cycle point. 
+- This algorithm can be used to find duplicates in an array in the case of all numbers are between bounds. 
 
 #### Cycle Detection Template
 ```javascript
