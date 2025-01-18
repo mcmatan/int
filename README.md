@@ -89,6 +89,19 @@ while (left <= right) {
 - Traversal: Use `current = current.next`
 - Reversal: Utilize `prev` and `current` pointers, with `prev` initially null until it receives the final value
 
+### Considerations
+
+- Removing at index zero is usually a special case
+- When storing nodes inside a map, it must be a native map to work.
+- Calling next on null throws. Always check if head/current exist before calling next
+
+```javascript
+   while (cursor) {
+    const cloned = map.get(cursor);
+    // check next exist
+    if (cursor.next) cloned.next = map.get(cursor.next); }
+```
+
 ### List Reversal Template
 ```javascript
 const reverseList = function(head) {
