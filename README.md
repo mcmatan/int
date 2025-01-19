@@ -1,5 +1,14 @@
 # Interview Algorithm Cheat Sheet
 
+##
+
+Array operations:
+Creating an array from indexes 1 to 3 we would use slice
+```javascript
+array.slice(1,4)
+```
+Slice operates from index inclusive to an exclusive index. When calling slice(0,1) we will get only 0. Same as when calling slice(1,2) we will receive only 1
+
 ## Monotonic Stack
 
 A monotonic stack is a data structure that maintains elements in either strictly increasing or strictly decreasing order. The fundamental insight is that when we violate this order (e.g., pushing a smaller element onto an increasing stack), we can perform meaningful calculations using the elements being removed.
@@ -242,4 +251,61 @@ class LRUCache {
         }
     }
 }
+```
+
+### Merge sort
+- Splitting in half multiple times until left with the smallest denominator, in some cases that would be a single element, other, a single sorted list
+- Then we merge using left to right comparison of sorted arrays
+- Very good for linked lists since operations of adding is O(1) 
+
+In the question "Merge K Sorted Linked Lists" we use merge sort to merge multiple already sorted arrays.
+If usually such an operation would take N * K, with merge sort it gows down to N log K since we are only merging halfs, so much less operations in total.
+Also space is pretty officiant with N Log K 
+
+```javascript
+
+class Solution {
+    mergeSort(listA, listB) {
+        if (!listA) return listB;
+        if (!listB) return listA;
+
+        let initial = new ListNode(null, null);
+        let res = initial;
+
+        while (listA && listB) {
+            if (listA.val < listB.val) {
+                initial.next = listA;
+                initial = initial.next;
+                listA = listA.next;
+            } else {
+                initial.next = listB;
+                initial = initial.next;
+                listB = listB.next;
+            }
+        }
+
+        if (listA) initial.next = listA;
+        if (listB) initial.next = listB;
+
+        return res.next;
+    }
+    
+    divide(lists, left, right) {
+        if (right < left) return null;
+        if (left === right) return lists[left];
+
+        const length = right - left;
+        const half = left + Math.floor(length / 2); // we must start from the left or else we would be pointing at a much to earlier 
+
+        const leftMerge = this.divide(lists, left, half);
+        const rightMerge = this.divide(lists, half +1, right);
+
+        return this.mergeSort(leftMerge, rightMerge);        
+    }
+
+    mergeKLists(lists) {   
+        return this.divide(lists, 0, lists.length -1)
+    }
+}
+
 ```
