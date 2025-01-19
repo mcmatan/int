@@ -10,12 +10,12 @@ A monotonic stack is a data structure that maintains elements in either strictly
 
 ### Example Problems
 1. **Largest Rectangle in Histogram**
-   - Maintain a stack of increasing heights
-   - When encountering a smaller height, calculate areas for all larger heights being popped
+    - Maintain a stack of increasing heights
+    - When encountering a smaller height, calculate areas for all larger heights being popped
 
 2. **Daily Temperatures**
-   - Maintain a stack of decreasing temperatures
-   - When encountering a warmer temperature, update waiting days for all colder temperatures being popped
+    - Maintain a stack of decreasing temperatures
+    - When encountering a warmer temperature, update waiting days for all colder temperatures being popped
 
 ### Common Applications
 - Finding next greater/smaller element
@@ -36,11 +36,11 @@ Binary search is a divide-and-conquer algorithm designed to find elements in sor
 
 ### Example Problem
 1. **Koko Eating Bananas**
-   - Create a range of possible eating speeds
-   - Binary search through the range to find the minimum viable speed
-   - For each speed tested, calculate whether it's sufficient
-   - Continue searching until the pointers cross
-   - Return the left pointer value as the optimal solution
+    - Create a range of possible eating speeds
+    - Binary search through the range to find the minimum viable speed
+    - For each speed tested, calculate whether it's sufficient
+    - Continue searching until the pointers cross
+    - Return the left pointer value as the optimal solution
 
 ### Standard Template
 ```javascript
@@ -50,7 +50,7 @@ const binarySearch = (nums, target) => {
 
     while (left <= right) {
         const mid = Math.floor((left + right) / 2);
-        
+
         if (nums[mid] === target) return mid;
         if (nums[mid] < target) left = mid + 1;
         else right = mid - 1;
@@ -78,10 +78,10 @@ while (left <= right) {
 ```
 
 - For problems like "Median of Two Sorted Arrays":
-   - Iterate through one array while calculating the corresponding position in the second array
-   - Use separator indices instead of value indices since one array might contain all target values
-   - Right pointer starts at array length (not length - 1) when using separator indices
-   - Handle edge cases by treating values beyond array bounds as infinity or negative infinity
+    - Iterate through one array while calculating the corresponding position in the second array
+    - Use separator indices instead of value indices since one array might contain all target values
+    - Right pointer starts at array length (not length - 1) when using separator indices
+    - Handle edge cases by treating values beyond array bounds as infinity or negative infinity
 
 ## Linked List
 
@@ -90,16 +90,18 @@ while (left <= right) {
 - Reversal: Utilize `prev` and `current` pointers, with `prev` initially null until it receives the final value
 
 ### Considerations
-
-- Removing at index zero is usually a special case
-- When storing nodes inside a map, it must be a native map to work.
-- Calling next on null throws. Always check if head/current exist before calling next
+- Removing a node at index zero requires special handling
+- When storing nodes inside a map, use a native Map object for proper functionality
+- Calling .next on null throws an error. Always check if head/current exists before accessing .next
 
 ```javascript
-   while (cursor) {
+while (cursor) {
     const cloned = map.get(cursor);
-    // check next exist
-    if (cursor.next) cloned.next = map.get(cursor.next); }
+    // Check if next exists before accessing
+    if (cursor.next) {
+        cloned.next = map.get(cursor.next);
+    }
+}
 ```
 
 ### List Reversal Template
@@ -125,11 +127,11 @@ const reverseList = function(head) {
 ### Floyd's Cycle-Finding Algorithm (Floyd's Tortoise and Hare)
 - Uses two pointers: a slow pointer moving one step and a fast pointer moving two steps
 - If there's a cycle, the pointers will eventually meet
-- Finding the point of cycle: 
-    a. executing fast and slow (fast +2, slow+1) until they meet
-    b. keeping slow at current place, and creating another slow, moving them both until they meet. That would be the result.
-    c. This works because mathematically fast and slow meeting point distance from cycle point is always equal to starting point to cycle point. 
-- This algorithm can be used to find duplicates in an array in the case of all numbers are between bounds. 
+- Finding the cycle entry point:
+  A. Execute fast and slow pointers (fast +2, slow +1) until they meet
+  B. Keep slow at current position, create another slow pointer at head, move both until they meet
+  C. This works because mathematically, the distance from meeting point to cycle entry equals the distance from start to cycle entry
+- This algorithm can detect duplicates in an array when all numbers are within bounds
 
 #### Cycle Detection Template
 ```javascript
@@ -150,5 +152,94 @@ const hasCycle = function(head) {
 ```
 
 ### Advanced Applications
-- Problems like "Reorder Linked List" [0, n-1, 1, n-2, 2, n-3, ...] might seem to require O(n) space for **reverse traversal** 
-- However, using Floyd's algorithm, you can perform in-place reordering by working backwards from the middle of the list, which does not take extra space.
+- Problems like "Reorder Linked List" [0, n-1, 1, n-2, 2, n-3, ...] might seem to require O(n) space for reverse traversal
+- However, using Floyd's algorithm, you can perform in-place reordering by working backwards from the middle of the list, which does not require extra space
+
+### LRU Cache
+- Updates most recently used items on new insertions AND get operations
+- On existing values, updates both the value and marks as most recently used
+- The key implementation details include:
+    - Handling case with no first node
+    - Handling case with no last node
+    - Setting last.next as null and updating prev pointers correctly
+    - Maintaining both first and last pointers accurately
+
+```javascript
+class Node {
+    constructor(key, val) {
+        this.key = key;
+        this.val = val;
+        this.next = null;
+        this.prev = null;
+    }
+}
+
+class LRUCache {
+    constructor(capacity) {
+        this.capacity = capacity;
+        this.size = 0;
+        this.first = null;  // least recently used
+        this.last = null;   // most recently used
+        this.map = new Map();
+    }
+
+    get(key) {
+        const node = this.map.get(key);
+        if (!node) return -1;
+
+        this.moveToEnd(node);
+        return node.val;
+    }
+
+    moveToEnd(node) {
+        if (node === this.last) return;
+
+        // Remove from current position
+        if (node === this.first) {
+            this.first = node.next;
+            this.first.prev = null;
+        } else {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+
+        // Add to end
+        this.last.next = node;
+        node.prev = this.last;
+        node.next = null;
+        this.last = node;
+    }
+
+    put(key, value) {
+        const existingNode = this.map.get(key);
+
+        if (existingNode) {
+            existingNode.val = value;
+            this.moveToEnd(existingNode);
+            return;
+        }
+
+        const newNode = new Node(key, value);
+        this.map.set(key, newNode);
+
+        if (this.size === 0) {
+            this.first = newNode;
+            this.last = newNode;
+        } else {
+            this.last.next = newNode;
+            newNode.prev = this.last;
+            this.last = newNode;
+        }
+
+        if (this.size === this.capacity) {
+            this.map.delete(this.first.key);
+            this.first = this.first.next;
+            if (this.first) {
+                this.first.prev = null;
+            }
+        } else {
+            this.size++;
+        }
+    }
+}
+```
