@@ -322,3 +322,36 @@ class Solution {
 }
 
 ```
+
+## Binary tree
+
+- Binary tree "depth" is the longest path from root to bottom, the "breadth" is the width
+- Traversing would be via recursive or stack, both usually take O(Height) space
+- Traversing is normally left to right
+- Level order traversal is one that needs a queue
+
+Given a tree:
+
+```markdown
+        1
+      /  \
+    2      3
+   / \    / \
+   4 5   6   7
+```
+
+In order traversal would mean visiting left, middle and right 
+
+4, 2, 5, 1, 6, 3, 7
+
+Pre order would mean visiting root before
+
+1, 2, 4, 5, 3, 6, 7
+
+Post order traversal would mean visiting middle last
+
+4, 5, 2, 6, 3, 7, 1
+
+Level order traversal is normally using a queue
+
+1, 2, 3, 4 ,5, 6, 7
