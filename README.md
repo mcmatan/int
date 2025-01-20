@@ -160,6 +160,19 @@ const hasCycle = function(head) {
 }
 ```
 
+- When measuring a length of a range within a linked list, we should verify next exits before extending or else we would end up having right side as null
+
+```javascript
+        let left = head; 
+        let right = head; 
+        let count = 1;
+        while (count < k && right.next) { // We make surer right.next exist within K range in order to return a none null right even if K is lower. 
+            right = right.next;
+            count++ 
+        }
+```
+
+
 ### Advanced Applications
 - Problems like "Reorder Linked List" [0, n-1, 1, n-2, 2, n-3, ...] might seem to require O(n) space for reverse traversal
 - However, using Floyd's algorithm, you can perform in-place reordering by working backwards from the middle of the list, which does not require extra space
