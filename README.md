@@ -333,6 +333,31 @@ class Solution {
 - Bottom-up calculations: Child nodes return values to parent nodes
 - Top-down calculations: Parent passes accumulated values to children
 - Balanced tree: Height difference between left and right subtrees is at most one (on every)
+- If a tree is not balanced recursive iteration could take O(N) in the worst case
+- When creating a hash representation of tree structure, we have to make sure to specify which are each nodes left and right, or else could have collisions
+
+```javascript
+    const hash = `(L:${getHash(node.left)},V:${node.val},R:${getHash(node.right)})`;
+    // and not
+    const hash = `${getHash(node.left)}:${node.val}${getHash(node.right)}`;
+
+```
+
+Since there would have the same value
+
+```markdown
+10
+/
+5
+ \
+  4
+
+10
+ \
+  4
+   \
+    5
+```
 
 Given a tree:
 
@@ -370,4 +395,28 @@ In the following example there is one edge and two notes
     A
    /
   B
+```
+
+### Balanced Binary Tree
+
+```javascript
+    var isBalanced = function(root) {
+        // global variable
+        let isBalanced  = true;
+        var helper = function(node) {
+            if (!node) return 0;
+            // call left and right
+            const left = helper(node.left);
+            const right = helper(node.right);
+         
+            const min = Math.min(left, right);
+            const max = Math.max(left, right);
+            // run internal calculation while updating global variable
+            if (max - 2 >= min) isBalanced = false;
+            // return max left or right while adding additioanl + 1
+            return Math.max(left, right) + 1;
+        }
+        helper(root);
+        return isBalanced;
+    }
 ```
