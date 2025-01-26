@@ -329,6 +329,10 @@ class Solution {
 - Traversing would be via recursive or stack, both usually take O(Height) space
 - Traversing is normally left to right
 - Level order traversal is one that needs a queue
+- Global state often managed via closure variables in nested functions
+- Bottom-up calculations: Child nodes return values to parent nodes
+- Top-down calculations: Parent passes accumulated values to children
+- Balanced tree: Height difference between left and right subtrees is at most one (on every)
 
 Given a tree:
 
@@ -355,3 +359,15 @@ Post order traversal would mean visiting middle last
 Level order traversal is normally using a queue
 
 1, 2, 3, 4 ,5, 6, 7
+
+### Edges and Nodes
+
+- Edges are the lines connecting nodes
+- Nodes are the values within the tree
+
+In the following example there is one edge and two notes
+```markdown
+    A
+   /
+  B
+```
