@@ -373,7 +373,7 @@ In order traversal would mean visiting left, middle and right
 
 4, 2, 5, 1, 6, 3, 7
 
-Pre order would mean visiting root before
+Pre order would mean visiting root before (Notice values are printed before the in order which would start from the bottom right)
 
 1, 2, 4, 5, 3, 6, 7
 
@@ -418,5 +418,91 @@ In the following example there is one edge and two notes
         }
         helper(root);
         return isBalanced;
+    }
+```
+
+### Level traversal
+
+There is a trick using a queue & a for-loop. The queue represents the "next level", but could contain also the "next next" level while we iterate over level
+Adding next. For that we use a for loop which remembers how many nodes are in the  current level.
+
+```javascript
+ var levelOrder = function(root) {
+        if (!root) return [];
+        let stack = [root];
+        let res = [] 
+
+        while (stack.length) {
+            const count = stack.length; 
+            let resNextLevel = []
+            for (let i = 0; i < count; i ++) {
+                const current = stack.shift();
+                resNextLevel.push(current.val); 
+                if (current.left) stack.push(current.left); 
+                if (current.right) stack.push(current.right);             
+            }
+            res.push(resNextLevel);
+        }
+
+        return res;
+    }
+```
+
+### Binary search tree
+
+- A binary search tree is a binary tree where the left child is less than the parent and the right child is greater than the parent
+- When validating a tree is valid, we must pass the min and max values to each node, since checking only with direct siblings could return true,
+While in the bigger picture it would be false (see 3 is not bigger than 5). Every node should check if under the current branching min/max.
+
+```markdown
+     5
+    / \
+   4   6
+      / \
+     3   7
+```
+
+- Construct Binary Tree from Preorder and Inorder Traversal: we are using the fast preorder first node is always the root.
+Than we create a root node, and set left and right side to recursive calls, while splitting in order via searching the root we found,
+And spliting the preorder using the count from pre order 
+
+```markdown
+              1
+             /. \
+            2.   3
+          /  \.  / \
+          4.  5 6.  7
+         /
+        8
+
+preorder =    [1, 2, 4, 8, 5, 3, 6, 7]
+inorder =     [8, 4, 2, 5, 1, 6, 3, 7]
+
+   preorder = [1, 2, 4, 8, 5, 3, 6, 7] -> First one is root
+               ^
+inorder =     [8, 4, 2, 5,] 1 [ 6, 3, 7]
+                            ^
+```
+
+```javascript
+    buildTree(preorder, inorder) {
+        var helper = function(preorderStart, preorderEnd, inorderStart, inorderEnd) {
+            if (preorderStart > preorderEnd) return null;
+            const node = new TreeNode(preorder[preorderStart]);
+            let inorderIndex = 0;
+            for (let i = inorderStart; i <= inorderEnd; i ++) {
+                if (inorder[i] === preorder[preorderStart]) {
+                    inorderIndex = i;
+                }
+            }
+            const leftSideLength = inorderIndex - inorderStart;
+
+            const newPreorderLeftEnd = preorderStart + 1 + leftSideLength - 1;
+            node.left = helper(preorderStart + 1, newPreorderLeftEnd, inorderStart, inorderIndex - 1);
+            node.right = helper(newPreorderLeftEnd + 1, preorderEnd, inorderIndex + 1, inorderEnd)
+
+            return node;
+        }
+        return helper(0, preorder.length -1, 0, inorder.length - 1);
     }
 ```
