@@ -506,3 +506,54 @@ inorder =     [8, 4, 2, 5,] 1 [ 6, 3, 7]
         return helper(0, preorder.length -1, 0, inorder.length - 1);
     }
 ```
+
+### 297. Serialize and Deserialize Binary Tree
+
+- We are to serialize and deserialize a binary tree. But there is a trick using pre order traversal which is not trivial.
+Normally one would try solving this using level travers, but the serialization would be more expensive.
+Here is an example how to do the simplified way:
+
+```javascript
+  var serialize = function(root) {
+    if (!root) return 'N';
+
+    return root.val + ',' + serialize(root.left) + ',' + serialize(root.right);
+};
+```
+This would be a possibly output ''1,2,N,N,3,N,N'
+
+And the deserialization would be:
+
+```javascript
+var deserialize = function(data) {
+    if (data === '') return null;
+    const arr = data.split(',');
+
+    let index = 0; // we are using index rather than popping array for better permofmance
+
+    var dfs = function() {
+        if (index > data.length - 1) { // nothing to do when reaching the end
+            return null;
+        }
+        if (arr[index] === 'N') { // we trast N as null, and moving index forwards
+            index++;
+            return null;
+        }
+        
+        const node = new TreeNode(parseInt(arr[index]));
+        index++;
+        // same dfs as was constructed, pre order traversal
+        node.left = dfs();
+        node.right = dfs();
+
+        return node;
+    }
+
+    return dfs();
+};
+```
+
+Given the following string '1,2,N,N,3,N,N'
+
+We would construct the 1, than 2, 2 left and right would be bull
+Continue to 1 right side, 3, 3 left and right would be null
