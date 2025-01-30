@@ -645,3 +645,52 @@ class MinHeap {
     }
 }
 ```
+
+## Bucket count "Last stone weight"
+
+- We are needed to find the highest stones each time and negate or remove them
+- Because of the constraint of max size of stone, we are able to instead of using a heap which
+Would be n log n, we use buckets correlated to size of stones, and find the heights one each time
+In constant time.
+
+```javascript
+var lastStoneWeight = function(stones) {
+    if (!stones.length) return null;
+
+    let max = stones[0]; // 6
+    for (let stone of stones) {
+        max = Math.max(max, stone);
+    }
+
+    let bucket = new Array(max + 1).fill(0);
+    for (let stone of stones) {
+        bucket[stone] ++;
+    }
+
+    let first = max; // 3
+
+    while (first > 0) {
+        if (bucket[first] > 1) {
+            bucket[first] -= 2;
+            continue;
+        }
+
+        while (first > 0 && bucket[first] === 0) first--;
+        if (bucket[first] > 1) {
+            bucket[first] -= 2;
+            continue;
+        }
+
+        let second = first - 1; // 2
+        while (second > 0 && bucket[second] === 0) second --;
+
+        if (second === 0) return first;
+
+        bucket[first - second] ++;
+        bucket[first] --;
+        bucket[second] --;
+    }
+
+    return 0;
+};
+```
