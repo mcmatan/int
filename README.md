@@ -557,3 +557,91 @@ Given the following string '1,2,N,N,3,N,N'
 
 We would construct the 1, than 2, 2 left and right would be bull
 Continue to 1 right side, 3, 3 left and right would be null
+
+----------------------
+
+
+## Min heap
+
+
+- A min heap is a binary tree where the parent is always smaller than the children
+- Accessing parent is using Math.floor((i - 1) / 2)
+- Accessing left child is using 2 * i + 1
+- Accessing right child is using 2 * i + 2
+
+```javascript
+class MinHeap {
+    constructor() {
+        this.heap = [];
+    }
+
+    swap(a, b) {
+        const tempA = this.heap[a];
+        this.heap[a] = this.heap[b];
+        this.heap[b] = tempA;
+    }
+
+    heapifyUp() {
+        let index = this.heap.length -1;
+
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            if (this.heap[parentIndex] < this.heap[index]) break;
+
+            this.swap(parentIndex, index);
+            index = parentIndex;
+        }
+    }
+
+    insert(value) {
+        if (!this.heap.length) {
+            this.heap.push(value);
+            return;
+        }
+
+        this.heap.push(value);
+        this.heapifyUp();
+    }
+
+    heapifyDown() {
+        let index = 0;
+
+        while (index < this.heap.length) {
+            const leftChild = index * 2 + 1;
+            const rightChild = index * 2 + 2;
+
+            let minIndex = index;
+
+            if (leftChild < this.heap.length && this.heap[leftChild] < this.heap[minIndex]) {
+                minIndex = leftChild;
+            }
+            if (rightChild < this.heap.length && this.heap[rightChild] < this.heap[minIndex]) {
+                minIndex = rightChild;
+            }
+
+            if (minIndex === index) break;
+
+            this.swap(minIndex, index);
+            index = minIndex;
+        }
+    }
+
+    extractMin() {
+        if (!this.heap.length) return null;
+        if (this.heap.length === 1) return this.heap.pop();
+
+        this.swap(0, this.heap.length -1);
+        const removed = this.heap.pop();
+        if (this.heap.length === 1) return removed;
+
+        this.heapifyDown();
+
+        return removed;
+    }
+
+    peek() {
+        if (!this.heap.length) return null;
+        return this.heap.length[0];
+    }
+}
+```
