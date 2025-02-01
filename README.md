@@ -568,6 +568,10 @@ Continue to 1 right side, 3, 3 left and right would be null
 - Accessing parent is using Math.floor((i - 1) / 2)
 - Accessing left child is using 2 * i + 1
 - Accessing right child is using 2 * i + 2
+- Given a question we need to find the smallest x values in a list of length y, a use of a min heap would be
+y log y, but actually, if using a max heap, we could make sure the heap is always of length x and that way deduct time
+complexity to y log x. Pushing values and every time we have more than x values, pop the next max (staying with min values)
+
 
 ```javascript
 class MinHeap {
@@ -693,4 +697,48 @@ var lastStoneWeight = function(stones) {
 
     return 0;
 };
+```
+
+### Finding the closes point to the origin
+
+- Calculating distance between two points is using sqrt((x1 - x2)^2 + (y1 - y2)^2)
+- Finding from 0,0 in javascript would simply be   Math.pow(value[1], 2) + Math.pow(value[0], 2);
+
+
+## Quick sort / select
+
+- Quick sort is essentially pivot sort. Choosing a random number and making sure it’s left and right are smaller and bigger, so it’s in the right place in the array, than doing the same for left and right
+- Quick sort avr time complexity is N log N, because if we manage to pick a pivot that splits in half the array, we are sorting half each time.
+- But if not, we will continue sorting the same size -1 which would become N ^ 2
+- Quick select is a method of sorting only one relevant side each time, for example when searching for largest X number.
+- Quick select avr time complexity is N since we split to have and sort only one half. This is not log n like binary search because in binary search at each step we just split to have (constant time) but here we actually iterate over all array elements at each level. It’s actually N + Log N but we removing the Log N since smaller than N.
+
+```javascript
+function partition(arr, left, right) {
+    let pivot = right;
+    let leftBorder = left - 1; 
+
+    // We want to move smaller elements to the left
+    for (let i = left; i < right; i ++ ) { // we move until the pivot number
+        if (arr[i] < arr[pivot]) {
+            leftBorder ++;
+            [arr[i], arr[leftBorder]] = [arr[leftBorder], arr[i]];
+        }
+    }
+
+    [arr[leftBorder + 1], arr[pivot]] = [arr[pivot], arr[leftBorder + 1]];
+    return leftBorder + 1;
+}
+
+
+function quickSort(arr, left, right) {
+    if (arr.length === 1) return arr;
+    if (left >= right) return arr;
+    
+    const pivot = partition(arr, left, right);
+
+    quickSort(arr, left, pivot - 1);
+    quickSort(arr, pivot + 1, right);
+    return arr;
+}
 ```
