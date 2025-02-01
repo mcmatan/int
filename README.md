@@ -571,6 +571,8 @@ Continue to 1 right side, 3, 3 left and right would be null
 - Given a question we need to find the smallest x values in a list of length y, a use of a min heap would be
 y log y, but actually, if using a max heap, we could make sure the heap is always of length x and that way deduct time
 complexity to y log x. Pushing values and every time we have more than x values, pop the next max (staying with min values)
+- Building a heap is O(n) since we are iterating over all values and heapifying up. This is counterintuitive since every operation is log n, but actually
+We are doing it in a way that we are not doing it for every value, but only for the ones that are needed to be moved up which terns out to be N.
 
 
 ```javascript
@@ -616,6 +618,7 @@ class MinHeap {
 
             let minIndex = index;
 
+            // Notice we are comparing both to each other by using minIndex. We will pick the lowest child 
             if (leftChild < this.heap.length && this.heap[leftChild] < this.heap[minIndex]) {
                 minIndex = leftChild;
             }
@@ -740,5 +743,19 @@ function quickSort(arr, left, right) {
     quickSort(arr, left, pivot - 1);
     quickSort(arr, pivot + 1, right);
     return arr;
+}
+```
+
+### Quick select
+
+```javascript
+function quickSelect(arr, left, right, k) {
+    if (left === right) return arr[left];
+
+    const pivot = partition(arr, left, right);
+
+    if (pivot === k) return arr[pivot];
+    if (pivot < k) return quickSelect(arr, pivot + 1, right, k);
+    return quickSelect(arr, left, pivot - 1, k);
 }
 ```
