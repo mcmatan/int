@@ -759,3 +759,68 @@ function quickSelect(arr, left, right, k) {
     return quickSelect(arr, left, pivot - 1, k);
 }
 ```
+
+## Subsets
+
+- Finding all possible none duplicate subsets is a recursive operation that at each point we decide rather we want to add or not add the number
+- Because we choose if to add or not, it's 2 ^ N since we have 2 options for each number. But because in this case we are also constructing an array which is 
+a N operation, we are actually N * 2 ^ N
+
+```javascript
+var subsets = function(nums) {
+        let res = [[]]
+        let helper = function(start, arr) {
+            for (let i = start; i < nums.length; i ++) {
+                let next = [...arr]
+                next.push(nums[i]);
+                res.push(next);
+                helper(i + 1, next)
+            }
+        }
+
+        helper(0, []);
+        return res;
+};
+```
+
+## Combination Sum (understanding time complexity)
+
+- Given a list of numbers and a target, we are to find all possible combinations that would sum up to the target
+- Numbers can be repeated, for example, [2, 3, 6, 7] and target 7 would have [2, 2, 3] and [7]
+
+In order to solve this, we iterate on all numbers while calling recursively passing current index onwards.
+This may seem like a N^N time complexity, but actually we should look at each branch number of decisions.
+We may start with N branches, but each branch only has 2 decisions, rather to add current number or not.
+
+2^(N-1) + 2^(N-2) + 2^(N-3) + ... + 2^0
+
+For that reason the time complexity is 2^N
+
+```javascript
+function combinationSum(nums, target) {
+        let res = [];
+
+        let helper = function(index, arr, sum) {
+            // because we pass the index it's a 2 ^ N and not n^n
+            for (let i = index; i < nums.length; i++) {
+                const num = nums[i];
+
+                if (num + sum > target) continue;
+                if (num + sum === target) {
+                    arr.push(num);
+                    res.push([...arr]);
+                    arr.pop();
+                    continue;
+                }
+
+                arr.push(num);
+                helper(i, arr, sum + num);
+                arr.pop();
+            }
+        } 
+
+        helper(0, [], 0);
+
+        return res;
+    }
+```
