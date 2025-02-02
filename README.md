@@ -824,3 +824,128 @@ function combinationSum(nums, target) {
         return res;
     }
 ```
+
+## Combination Sum II (And how to skip duplicates)
+
+In this case, we are to find all possible combinations that would sum up to the target, but we are not allowed to use the same number twice.
+The tricky case is given this input 1,2,2,2,5 and target 5, we should have return [1,2,2] twice. Just once. 
+In order to do so, we sort the input, and after a recursive call OR a final solution we skip all duplicates.
+
+If we would not skip duplicates after adding to res array, we would move 1 index forward that could contain the same number again.
+
+`Example: 1,2,2,2,5 in the case after adding 1,2,2 we do not want to continue to the index 3 2`
+
+If we would not skip duplicates after each recursive call, we would have the same problem but in the middle or start of the result.
+
+`Example:  1,2,2,2,5 after adding 2,2 5 we do not want to add another 2,2,5`
+
+Two different cases, two are must.
+
+```javascript
+ function combinationSum2(candidates, target) {
+        let res = [];
+        candidates = candidates.sort((a,b) => a - b);
+
+        let helper = function(arr, index, sum) {
+            for (let i = index; i < candidates.length; i ++) {
+                const num = candidates[i];
+
+                if ((sum + num) === target) {
+                    arr.push(num);
+                    res.push([...arr]);
+                    arr.pop();
+                    // We skip here 
+                    while (candidates[i + 1] === candidates[i]) i++;
+                    continue;
+                }
+
+                if ((sum + num) > target) continue;
+
+                arr.push(num);
+                helper(arr, i + 1, sum + num);
+                arr.pop(); 
+                // And skip here
+                while (candidates[i + 1] === candidates[i]) i++;
+            }
+        }
+
+        helper([], 0, 0);
+
+        return res;
+    }
+```
+
+Alternatively, we could skip checking current is not equal previous using the passed index.
+Only check if the i is bigger than index and by this guaranteeing number only shows once per index.
+We allow picking a chain of numbers once, for example 1,2,2,2,2,3 and the next time all 2 would be skipped.
+
+```javascript
+function combinationSum2(candidates, target) {
+        let res = [];
+        candidates = candidates.sort((a,b) => a - b);
+
+        let helper = function(arr, index, sum) {
+            for (let i = index; i < candidates.length; i ++) {
+                // This is the trick here
+                if (i > index && candidates[i -1] === candidates[i]) continue;
+
+                const num = candidates[i];
+
+                if ((sum + num) === target) {
+                    arr.push(num);
+                    res.push([...arr]);
+                    arr.pop();
+                    continue;
+                }
+
+                if ((sum + num) > target) continue;
+
+                arr.push(num);
+                helper(arr, i + 1, sum + num);
+                arr.pop(); 
+            }
+        }
+
+        helper([], 0, 0);
+
+        return res;
+    }
+```
+
+## Permutations (without copying arrays)
+
+- Given a list of numbers, we are to find all possible permutations
+Example:
+- 
+Input: nums = [1,2,3]
+
+Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+The most trivial way to solve this would be iterating while creating new arrays with the missing index and the new permutation array.
+But this would add to the time complexity since we are creating new arrays each time.
+Instead, we can iterate while swapping the order of items in the array and then swapping back to the original order.
+
+```javascript
+    function permute(nums) {
+        let res = [];
+
+        let helper = function(index) {
+            if (index === nums.length) {
+                res.push([...nums]);
+                return;
+            }
+            for (let i = index; i < nums.length; i ++) {
+                swap(nums, i, index);
+                helper(index + 1); 
+                swap(nums, i, index);
+            }
+        }
+
+        helper(0)
+
+        return res;
+    }
+```
+
+The time complexity in this case seems like N^N but we are actually have N-1 at branching at each level, so it's N!
+Notice this last question time complexity is MUCH higher than the previous ones, since we are actually creating N! arrays.
