@@ -998,3 +998,58 @@ The total time complexity is 2^n * n (since we are creating an array at each lev
 
 <img src="./images/2n-recursive.png">
 
+## Palindrome Partitioning (and how to calculate all possible partitions)
+
+Example: Input: s = "aab"
+
+Output: [["a","a","b"],["aa","b"]]
+
+The question was tricky to me at first, because I did not understand as long as we calculate all polindrom from
+i to j, and call recursive, all of them would be found.
+
+If we have a , b , c, d, d, c
+
+As long as we try every match
+
+a √
+ab x
+abc x
+....
+
+then do the same for
+
+a √
+b ∫
+cddc √
+
+We will find all possible partitions
+
+```javascript
+function isPolindrom(s, start, end) {
+    if (start >= end) return true;
+    if (s[start] !== s[end]) return false;
+    return isPolindrom(s, start +1, end -1);
+}
+
+function partition(s) {
+    let res = [];
+    
+    let helper = function(index, arr) {
+        if (index >= s.length) {
+            res.push([...arr]);
+            return;
+        }
+        for (let i = index; i < s.length; i ++) {
+            if (isPolindrom(s, index, i)) {
+                arr.push(s.substring(index, i + 1));
+                helper(i + 1, arr);
+                arr.pop();
+            }
+        }
+    }
+
+    helper(0, []);
+
+    return res;
+}
+```
