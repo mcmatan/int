@@ -875,7 +875,7 @@ Two different cases, two are must.
     }
 ```
 
-Alternatively, we could skip checking current is not equal previous using the passed index.
+Alternatively (and more recommended), we could skip checking current is not equal previous using the passed index.
 Only check if the i is bigger than index and by this guaranteeing number only shows once per index.
 We allow picking a chain of numbers once, for example 1,2,2,2,2,3 and the next time all 2 would be skipped.
 
@@ -910,6 +910,13 @@ function combinationSum2(candidates, target) {
 
         return res;
     }
+```
+
+
+This is the trick of skipping duplicates
+
+```
+ if (i > index && nums[i -1] === nums[i]) continue;
 ```
 
 ## Permutations (without copying arrays)
@@ -949,3 +956,45 @@ Instead, we can iterate while swapping the order of items in the array and then 
 
 The time complexity in this case seems like N^N but we are actually have N-1 at branching at each level, so it's N!
 Notice this last question time complexity is MUCH higher than the previous ones, since we are actually creating N! arrays.
+
+## Subsets II (Understanding time complexity)
+
+Example input and output 
+
+```
+Input: nums = [1,2,1]
+
+Output: [[],[1],[1,2],[1,1],[1,2,1],[2]]
+```
+
+Actual implementation:
+
+```javascript
+  function subsetsWithDup(nums) {
+        let res = [];
+        nums = nums.sort((a, b) => a - b);
+
+        let helper = function(index, arr) {
+            res.push([...arr]);
+            for (let i = index; i < nums.length; i ++) {
+                if (i > index && nums[i -1] === nums[i]) continue;
+                const num = nums[i];
+                arr.push(num);
+                helper(i + 1, arr);
+                arr.pop();
+            }
+        }
+
+        helper(0, []);
+
+        return res;
+    }
+```
+
+It may seem like we have N options at each level because of the for loop, but we actually have just 2.
+If we visualize it, it looks like so: (for [1,2,3])
+
+The total time complexity is 2^n * n (since we are creating an array at each level)
+
+<img src="./images/2n-recursive.png">
+
