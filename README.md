@@ -1053,3 +1053,29 @@ function partition(s) {
     return res;
 }
 ```
+
+### N Queens
+
+- Given a board of size N x N, we are to find all possible ways to place N queens on the board
+
+<img src="./images/n-queen.png">
+
+This is a classic situation of time complexity n! since at each level we have n-1 options.
+n -1, n-2, n-3....
+
+### Design Add and Search Word Data Structure (Trie search time complexity)
+
+Examples 
+
+wordDictionary.addWord("day");
+wordDictionary.addWord("bay");
+wordDictionary.addWord("may");
+wordDictionary.search("say"); // return false
+wordDictionary.search("day"); // return true
+wordDictionary.search(".ay"); // return true
+wordDictionary.search("b.."); // return true
+
+The time complexity is 26^m where m is the length of the word, because on each level we have 26 characters possibly
+and every time we have another 26 possibilities as long as there are * in the word.
+
+```javascript
