@@ -1073,9 +1073,150 @@ wordDictionary.addWord("may");
 wordDictionary.search("say"); // return false
 wordDictionary.search("day"); // return true
 wordDictionary.search(".ay"); // return true
-wordDictionary.search("b.."); // return true
+wordDictionary.search("b.."); /
+/ return true
 
 The time complexity is 26^m where m is the length of the word, because on each level we have 26 characters possibly
 and every time we have another 26 possibilities as long as there are * in the word.
 
+
+# Graphs
+
+## Cloning graphs:
+
+### Recursive
+
+We are creating nodes or returning existing clone, then calling recursive on each child
+
 ```javascript
+function cloneGraph(node) {
+        // base case important to remember or else ".val" of undefined will throw
+        if (!node) return node;
+           let map = {};
+
+    let helper = function(currentNode) {
+        if (map[currentNode.val] !== undefined) return map[currentNode.val];
+
+        const nodeClone = new Node(currentNode.val);
+        // this is important, to set fast, or else it would be infinite recursion
+        map[currentNode.val] = nodeClone;
+        let cloneNeighbors = [];
+        for (let n of currentNode.neighbors) {
+            cloneNeighbors.push(helper(n))
+        }
+
+        nodeClone.neighbors = cloneNeighbors;
+       
+        return nodeClone;
+    }
+
+    helper(node);
+
+    return map[node.val];
+    }
+```
+
+We can do the same thing using stack, in this case we would create all children and push
+Then to stack. So when iterating on children we would not push if already found
+
+```javascript
+function cloneGraph(node) {
+        if (!node) return null;
+
+        let stack = [node];
+        let clones = {};
+        clones[node.val] = new Node(node.val);
+
+        while (stack.length) {
+            const original = stack.shift();
+            const clone = clones[original.val];
+
+            for (let neighbor of original.neighbors) {
+                if (clones[neighbor.val] === undefined) {                
+                    const neighborClone = new Node(neighbor.val);
+                    clones[neighbor.val] = neighborClone
+                    clone.neighbors.push(neighborClone)
+                    stack.push(neighbor)
+
+                } else {
+                    // This is really important to remember for recursive calls 
+                    if (!clone.neighbors.includes(clones[neighbor.val]) 
+                        clone.neighbors.push(clones[neighbor.val])
+                }
+            }
+        }        
+
+        return clones[node.val]
+    }
+```
+
+### Islands and Treasure 
+
+This question input is a matrix that each cell could be one of 3 values:
+0 treasure
+-1 water, can not traverse
+2147483647 big number
+
+We should return a matrix the each big number shows the distance to the closest treasure.
+
+```markdown
+Input: [
+  [2147483647,-1,0,2147483647],
+  [2147483647,2147483647,2147483647,-1],
+  [2147483647,-1,2147483647,-1],
+  [0,-1,2147483647,2147483647]
+]
+
+Output: [
+  [3,-1,0,1],
+  [2,2,1,-1],
+  [1,-1,2,-1],
+  [0,-1,3,4]
+]
+```
+
+At first it may seem like a problem of time complexity:
+
+Number of treasure * board size, since we would have to bfs on each one.
+But the trick is traversing from all of the treasures together!
+Which terms out to be time complexity of board size, single iteration.
+
+```javascript
+islandsAndTreasure(grid) {
+        if (!grid.length || !grid[0].length) return grid;
+
+        let queue = [];
+
+        for (let y = 0; y < grid.length; y ++) {
+            for (let x = 0; x < grid[0].length; x ++) {
+                if (grid[y][x] === 0) {
+                    queue.push({y, x, steps: 0})
+                }                
+            }
+        }
+
+        while (queue.length) {
+            const next = queue.shift();
+            let steps = next.steps + 1;
+
+            if (next.y > 0 && grid[next.y -1][next.x] === 2147483647) {
+                grid[next.y -1][next.x] = steps;
+                queue.push({x: next.x, y: next.y -1, steps});
+            }
+            if (next.x > 0 && grid[next.y][next.x -1] === 2147483647) {
+                grid[next.y][next.x -1] = steps;
+                queue.push({x: next.x -1, y: next.y, steps});
+            }
+            if (next.y < grid.length -1 && grid[next.y +1][next.x] === 2147483647) {
+                grid[next.y + 1][next.x] = steps;
+                queue.push({x: next.x, y: next.y + 1, steps});
+            }
+            if (next.x < grid[0].length && grid[next.y][next.x + 1] === 2147483647) {
+                grid[next.y][next.x + 1] = steps;
+                queue.push({x: next.x + 1, y: next.y, steps});
+            }
+        }
+
+        return grid;
+    }
+```
