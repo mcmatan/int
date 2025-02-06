@@ -1220,3 +1220,73 @@ islandsAndTreasure(grid) {
         return grid;
     }
 ```
+
+### Rotting Fruit
+
+You are given a 2-D matrix grid. Each cell can have one of three possible values:
+0 representing an empty cell
+1 representing a fresh fruit
+2 representing a rotten fruit
+
+Every minute, if a fresh fruit is horizontally or vertically adjacent to a rotten fruit, then the fresh fruit also becomes rotten.
+
+Return the minimum number of minutes that must elapse until there are zero fresh fruits remaining. If this state is impossible within the grid, return -1.
+
+- The trivial think is to use the same method of extending via bfs from all rotten fruits
+- But the time is something should remember to start from -1 or else what be counting invalid
+- And at the end we must iterate again to validate there are no left fruits
+
+```javascript
+    function orangesRotting(grid) {
+        if (!grid.length || !grid[0].length) return 0
+
+        let queue = [];
+        for (let y = 0; y < grid.length; y ++ ) {
+            for (let x = 0; x < grid[0].length; x ++ ) {
+                if (grid[y][x] === 2) {
+                    queue.push({x, y})
+                }
+            }
+        }
+
+        // in order for minutes to be valid
+        let minutes = -1
+
+        while (queue.length) {
+            minutes++;
+            const length = queue.length;
+            for (let i = 0; i < length; i ++ ) {
+                const next = queue.shift();
+            const y = next.y;
+            const x = next.x;
+
+            if (y > 0 && grid[y - 1][x] === 1) {
+                grid[y -1][x] = 2
+                queue.push({y: y -1, x})
+            }
+            if (x > 0 && grid[y][x -1] === 1) {
+                grid[y][x -1] = 2;
+                queue.push({y, x: x -1 });
+            }
+            if (y < grid.length - 1 && grid[y + 1][x] === 1) {
+                grid[y + 1][x] = 2;
+                queue.push({y: y + 1, x});
+            }
+            if (x < grid[0].length -1 && grid[y][x + 1] === 1) {
+                grid[y][x + 1] = 2;
+                queue.push({y, x: x + 1})
+            }
+            
+        }
+        }
+
+        // If not possible to rotten all fruit
+        for (let y = 0; y < grid.length; y ++ ) {
+            for (let x = 0; x < grid[0].length; x ++ ) {
+                if (grid[y][x] === 1) return -1
+            }
+        }
+
+        return minutes === -1 ? 0 : minutes
+    }
+```
