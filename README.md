@@ -1290,3 +1290,181 @@ Return the minimum number of minutes that must elapse until there are zero fresh
         return minutes === -1 ? 0 : minutes
     }
 ```
+
+### Surrounded Regions
+
+The question ask us to flip all O that are not surrounded by X to X.
+The trick is
+
+1. When we are on O and check all neighbors, we must flip them to a different charicter in order to not iterate recursively
+
+
+<img src="./images/surrounded-regions.png">
+
+```javascript
+function doesOReachEdge(board,y,x) {
+    if (y < 0 || x < 0 || y > board.length -1 || x > board[0].length -1) {
+        return true;
+    }
+
+    const current = board[y][x];
+    if (current === "X" || current === "I") {
+        return false;
+    }
+
+    board[y][x] = "I"; // This is important to remember
+    const res = (
+        doesOReachEdge(board, y + 1, x) ||
+        doesOReachEdge(board, y -1, x) ||
+        doesOReachEdge(board, y, x + 1) ||
+        doesOReachEdge(board, y, x -1) 
+    )
+    board[y][x] = "O"
+    return res;
+}
+```
+
+2. In order to not re-check every O while itereting the matrix, we would flip O with X or I
+Than before returning result, flip I back to O
+
+```javascript
+ if (current === 'O') {
+    // this trick is checking, marking as I, and swapping back
+    const reachesEdge = doesOReachEdge(board, y, x);
+    if (!reachesEdge) {
+        swapOWithX(board, y, x);
+    } else {
+        swapOWithI(board, y, x)
+    }
+}
+
+// Before result 
+
+for (let y = 0; y < board.length; y ++) {
+    for (let x = 0; x < board[0].length; x ++ ) {
+        if (board[y][x] === 'I') {
+            board[y][x] = 'O'
+        }
+    }
+}
+```
+
+### Course Schedule (Detecting cycles)
+
+We receive a list of requirements of which course has to be completed before other one. For example:
+
+[0,1] means we have to take 1 before we take zero.
+
+And we receive a number of courses to complete, for example 9 means courses 0-8.
+
+The trick is while dfs making sure to mark completed ones at the right point, which is:
+
+1. If a course has no dependencies
+2. If all dependencies are completed
+
+```javascript
+  let allCompleted = {}
+        for (let i = 0; i < numCourses; i ++ ) {
+            if (allCompleted[i] !== undefined) continue;
+
+            const res = numberOfCourses(map, i, {}, allCompleted);
+            if (res === false) return false;
+        }
+        return true;
+
+
+function numberOfCourses(map, course, seen, completed) {
+    let recursive = false;
+
+    let helper = function(c) {
+        if (completed[c] === true) return; // exist if already completed
+
+        // seen is marked on a different step from completed in order to track recursion
+        if (seen[c] !== undefined) {
+            recursive = true;
+            return;
+        }
+
+        seen[c] = true;
+
+        if (map[c] === undefined) {
+            completed[c] = true; // no dependecies completion marking
+            return;
+        }
+
+        for (let d of map[c]) {
+            helper(d);
+        }
+
+        completed[c] = true; // dependecies completion marking
+    }
+
+    helper(course)
+
+    if (recursive === true) return false
+
+    return true;
+}
+```
+
+###  Topological Sort (Kahn's Algorithm) (Finding cycles and if dependencies could be resolved)
+
+Following the previous question, we could also solve it using topological sort.
+
+-  We are counting how many dependencies does each one need. For example: [0, 2, 1] means 0 has no
+dependencies, 2 has 1 dependency, and 1 has 2 dependencies.
+- Then we are connecting between each course to the one that depends on it.
+- We push to a queue all the ones with zero dependencies (our starting points) marking by negating 1 from
+original dependency array count, if reached zero, we add it to the queue
+- We keep a total count of how many resolved and compare against the total number of courses
+
+In short, we are saying:
+
+Let's find course with no dependencies and removed them from dependencies of other courses.
+Now let's see which ones have no dependencies and do the same.
+
+In the example of [0, 1], 0 depends on 1 which has no dependencies.
+
+```javascript
+ function canFinish(numCourses, prerequisites) {
+       // create array with dependency count (O has 1 dependenciy [1, 0])
+       let deps = new Array(numCourses).fill(0);
+       for (let i = 0; i < prerequisites.length; i ++) {
+            const p = prerequisites[i];
+            deps[p[0]]++;
+       }
+
+       // create map with which nodes resolves which dependeicies (1 resolves dependencies [0])
+       let resolves = {};
+       for (let p of prerequisites) {
+            if (resolves[p[1]] === undefined) resolves[p[1]] = [];
+            resolves[p[1]].push(p[0])
+       }
+
+       // add all zero dependeices to queue (we add 1 since has no dependencies)
+       let queue = [];
+       for (let i = 0; i < deps.length; i ++) {
+        if (deps[i] === 0) {
+            queue.push(i)
+        }
+       }
+
+       let total = 0;
+       // while queue has length, pop, remove dependencies, if zero, add to queue
+       while (queue.length) {
+            total++
+            const next = queue.pop();
+            if (resolves[next] === undefined) continue;
+            for (let course of resolves[next]) {
+                deps[course]--; // remove the 1 depedency 0 had.
+                if (deps[course] === 0) {
+                    queue.push(course)
+                }
+            }
+       }
+       
+       // if we would have recursive call, we would not be able to resolve all dependencies (turn them to zero)
+
+       return total >= numCourses;
+    }   
+```
