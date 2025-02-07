@@ -1294,60 +1294,60 @@ Return the minimum number of minutes that must elapse until there are zero fresh
 ### Surrounded Regions
 
 The question ask us to flip all O that are not surrounded by X to X.
-The trick is
 
-1. When we are on O and check all neighbors, we must flip them to a different charicter in order to not iterate recursively
-
+- I was wrong about the trick in this question. It's much easier to iterate from the edges and mark all
+zeros as temporary value, and later set that temporary value back to zero, and zeros that still exist to X.
 
 <img src="./images/surrounded-regions.png">
 
 ```javascript
-function doesOReachEdge(board,y,x) {
-    if (y < 0 || x < 0 || y > board.length -1 || x > board[0].length -1) {
-        return true;
-    }
-
+function markAsX(board, y, x) {
+    if (x < 0 || y < 0 || x > board[0].length -1 || y > board.length -1) return;
     const current = board[y][x];
-    if (current === "X" || current === "I") {
-        return false;
-    }
+    if (current !== "O") return;
 
-    board[y][x] = "I"; // This is important to remember
-    const res = (
-        doesOReachEdge(board, y + 1, x) ||
-        doesOReachEdge(board, y -1, x) ||
-        doesOReachEdge(board, y, x + 1) ||
-        doesOReachEdge(board, y, x -1) 
-    )
-    board[y][x] = "O"
-    return res;
-}
-```
-
-2. In order to not re-check every O while itereting the matrix, we would flip O with X or I
-Than before returning result, flip I back to O
-
-```javascript
- if (current === 'O') {
-    // this trick is checking, marking as I, and swapping back
-    const reachesEdge = doesOReachEdge(board, y, x);
-    if (!reachesEdge) {
-        swapOWithX(board, y, x);
-    } else {
-        swapOWithI(board, y, x)
-    }
+    board[y][x] = 'I';
+    markAsX(board, y + 1, x);
+    markAsX(board, y -1, x);
+    markAsX(board, y, x + 1);
+    markAsX(board, y, x -1)
 }
 
-// Before result 
+var solve = function(board) {
 
-for (let y = 0; y < board.length; y ++) {
-    for (let x = 0; x < board[0].length; x ++ ) {
-        if (board[y][x] === 'I') {
-            board[y][x] = 'O'
+    if (!board.length || !board[0].length) return board;
+
+    for (let i = 0; i < board[0].length; i++) {
+        const top = board[0][i];
+        if (top === 'O') markAsX(board, 0, i);
+
+        const bottom = board[board.length -1][i];
+        if (bottom === "O") markAsX(board, board.length -1, i)
+    }
+
+    for (let i = 1; i < board.length - 1; i ++) {
+        const left = board[i][0];
+        if (left === "O") markAsX(board, i, 0);
+
+        const right = board[i][board[0].length - 1];
+        if (right === "O") markAsX(board, i, board[0].length -1)
+    }
+
+    for (let y = 0; y < board.length; y ++) {
+        for (let x = 0; x < board[0].length; x ++) {
+            const current = board[y][x];
+            if (current === 'I') {
+                board[y][x] = 'O'
+            } else if (current === 'O') {
+                board[y][x] = "X"
+            }
         }
     }
-}
+
+    return board;
+};
 ```
+
 
 ### Course Schedule (Detecting cycles)
 
