@@ -1600,6 +1600,10 @@ We have to verify it.
 ```
 
 ### Redundant Connection (Detecting cycles)
+Time complexity: O(V + E) (We are iterating on both edges and nodes)
+
+In short: start from any node since all are connected. Dfs until noticed we are in a cycle. Backtrack while selecting all cycle nodes.
+Return the first edge from the right which is within the cycle. 
 
 The questions tells us about a tree that all nodes were connected, but one edge was added that created a cycle.
 We need to find that edge.
@@ -1667,6 +1671,7 @@ function findRedundantConnection(edges) {
 };
 ```
 ### Redundant Connection (same question) solving with Topological Sort (Kahn's Algorithm)
+Time complexity: O(V + E) (We are iterating on both edges and nodes)
 
 In short: create a data structure to hold dependency count per node, then check if there are ones with 1 dependency. If there are, it means
 not the hole graph is a cycle, we have an edge that is a branch. Now we want to remove the hole branch (or multiple) until reaching the circle.
@@ -1721,4 +1726,64 @@ We can iterate from right to left and return the first one we see.
 
         return null
     }
+```
+
+### Redundant Connection (same question) solving with Disjoint Set Union
+Time complexity: we iterate over each edge, and for each node we are union finding it's parent.
+The union find is near constant but not constant. For that reason it's:
+V is the number of vertics (nodes)
+E refers to edges
+O(V + E * (a(v)))
+We iterate over each node, that's a given. Because we are creating an array of size V.
+Then for each edge, we run union with a time complexity of a(v) because It's amortized (near linear) of size V (number of vertics/nodes)
+
+Union means joining two groups together. For each node, we will keep a counter which says how big is it's tree size, and a pointer to it's parent (or self)
+Then iterate over each edge, calling union on both nodes together.
+Once we find two node that are already of the same parent, it means we found the additional edge that caused the cycle.
+
+We are actually building a root to children kind of tree from each nodes parent. Once the two parents are the same, it means 
+these two nodes already exist, and adding the edge would cause a cycle.
+
+```javascript
+    function findRedundantConnection(edges) {
+        let parentPointer = new Array(edges.length).fill(0);
+        for (let i = 0; i < parentPointer.length; i ++) {
+            parentPointer[i] = i
+        }
+        let sizeCounter = new Array(edges.length).fill(1);
+    
+        let parentsAreTheSame = function(nodeA, nodeB) {
+            let tempA = nodeA;
+            let tempB = nodeB;
+            while (parentPointer[tempA] !== tempA) tempA = parentPointer[tempA];
+            while (parentPointer[tempB] !== tempB ) tempB = parentPointer[tempB];
+            if (tempA === tempB) return true;
+            return false;
+        }
+    
+        let union = function(nodeA, nodeB) {
+            let tempA = nodeA;
+            let tempB = nodeB;
+            while (parentPointer[tempA] !== tempA) tempA = parentPointer[tempA];
+            while (parentPointer[tempB] !== tempB ) tempB = parentPointer[tempB];
+    
+            if (sizeCounter[tempA] >= sizeCounter[tempB]) {
+                sizeCounter[tempA]+= sizeCounter[tempB];
+                sizeCounter[tempB] = 0;
+                parentPointer[tempB] = tempA;
+            } else {
+                sizeCounter[tempB]+= sizeCounter[tempA];
+                sizeCounter[tempA] = 0;
+                parentPointer[tempA] = tempB;
+            }
+        }
+    
+        for (let edge of edges){
+            if (parentsAreTheSame(edge[0], edge[1])) return edge;
+    
+            union(edge[0], edge[1])
+        }
+
+    return null;
+}
 ```
