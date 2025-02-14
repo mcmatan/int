@@ -1411,8 +1411,12 @@ function numberOfCourses(map, course, seen, completed) {
 
 Following the previous question, we could also solve it using topological sort.
 
--  We are counting how many dependencies does each one need. For example: [0, 2, 1] means 0 has no
-dependencies, 2 has 1 dependency, and 1 has 2 dependencies.
+In short: we create data structure that holds how many dependencies does each node have. Another data structure holds each node which 
+node dependencies it resolves. Then we start from a node with no dependencies, resolving (negating 1) from each node which had this one as dependency
+while pushing to the queue nodes that after resolution have no dependencies.
+
+-  Count how many dependencies does each node have. For example: [0, 2, 1] means 0 has no
+dependencies, 1 has 2 dependency, and 2 has 1 dependency.
 - Then we are connecting between each course to the one that depends on it.
 - We push to a queue all the ones with zero dependencies (our starting points) marking by negating 1 from
 original dependency array count, if reached zero, we add it to the queue
@@ -1469,7 +1473,7 @@ In the example of [0, 1], 0 depends on 1 which has no dependencies.
     }   
 ```
 
-## Graph valid tree 
+### Graph valid tree 
 
 - First, the definition of "valid" tree is that it has no cycles and all nodes are connected.
 
@@ -1595,7 +1599,7 @@ We have to verify it.
     }
 ```
 
-## Redundant Connection (Detecting cycles)
+### Redundant Connection (Detecting cycles)
 
 The questions tells us about a tree that all nodes were connected, but one edge was added that created a cycle.
 We need to find that edge.
@@ -1661,4 +1665,60 @@ function findRedundantConnection(edges) {
         }
         return null;
 };
+```
+### Redundant Connection (same question) solving with Topological Sort (Kahn's Algorithm)
+
+In short: create a data structure to hold dependency count per node, then check if there are ones with 1 dependency. If there are, it means
+not the hole graph is a cycle, we have an edge that is a branch. Now we want to remove the hole branch (or multiple) until reaching the circle.
+So we add 1 dependency nodes to a queue, pulling from it and removing 1 dependency from each child. if child dependencies is not 1, we add to queue.
+Else, it means we reached the circle start that would have 1 or more branches dependencies plus 2 of the circle (left and right)
+
+Now we are left with a data structure of dependencies that ones of the circle should still have 2. 
+We can iterate from right to left and return the first one we see.
+
+```javascript
+ function findRedundantConnection(edges) {
+        let depCount = {}; // how many dependencies does each node have
+        let graph = {};
+        for (let edge of edges) {
+            const nodeOne = edge[0];
+            const nodeTwo = edge[1];
+            if (depCount[nodeOne] === undefined) depCount[nodeOne] = 0;
+            if (depCount[nodeTwo] === undefined) depCount[nodeTwo] = 0;
+            if (graph[nodeOne] === undefined) graph[nodeOne] = [];
+            if (graph[nodeTwo] === undefined) graph[nodeTwo] = [];
+
+            depCount[nodeOne]++;
+            depCount[nodeTwo]++;
+            graph[nodeOne].push(nodeTwo);
+            graph[nodeTwo].push(nodeOne);
+        }
+
+        let queue = [];
+        for (let edge of edges) {
+            const nodeOne = edge[0];
+            const nodeTwo = edge[1];
+            if (depCount[nodeOne] === 1) { // if 1 it means a start of a branch 
+                queue.push(nodeOne);
+            } else if (depCount[nodeTwo] === 1) {
+                queue.push(nodeTwo)
+            }
+        }
+
+        while (queue.length) {
+            const next = queue.shift();
+            if (graph[next] === undefined ) continue;
+            for (let child of graph[next]) {
+                depCount[child]--;
+                if (depCount[child] === 1) queue.push(child) // if after removal child is 1, it means child is still not part of a cycle.
+            }
+        }
+
+        for (let i = edges.length - 1; i >= 0; i --) {
+            const edge = edges[i];
+            if (depCount[edge[0]] === 2 && depCount[edge[1]] === 2) return edge // cycle nodes have 2 dependencies, one from each side
+        }
+
+        return null
+    }
 ```
