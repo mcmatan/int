@@ -1468,3 +1468,197 @@ In the example of [0, 1], 0 depends on 1 which has no dependencies.
        return total >= numCourses;
     }   
 ```
+
+## Graph valid tree 
+
+- First, the definition of "valid" tree is that it has no cycles and all nodes are connected.
+
+The question gives us a list of edges, and we are to find if it's a valid tree. A edge means a connection between two nodes.
+This is part of the trick, which we are given [0,1] these are two nodes connected.
+
+This is valid:
+
+```javascript
+Input:
+n = 5
+edges = [[0, 1], [0, 2], [0, 3], [1, 4]]
+```
+
+This is not 
+
+```javascript
+Input:
+n = 5
+edges = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]]
+```
+Because of cycles.
+
+The trick is to hash map all connections and treat numbers as nodes. And if we dfs we can keep track of the parent caller,
+which because it's bidirectional, we can make sure we are not going back to the parent (which would be valid, we care only about cycles).
+
+```javascript
+ function validTree(n, edges) {
+        if (!edges.length) return true;
+        
+        let map = {};
+        for (let edge of edges) {
+            if (map[edge[0]] === undefined) map[edge[0]] = []
+            if (map[edge[1]] === undefined) map[edge[1]] = [];
+
+            map[edge[1]].push(edge[0]);
+            map[edge[0]].push(edge[1]);
+        }
+
+        let visited = 0;
+        let seen = {}
+        
+        let recursive = false;
+        let dfs = function(node, parent) {
+            if (seen[node] !== undefined) {
+                // detecting as boolean since return would not work
+                recursive = true;
+                return;
+            };
+            seen[node] = true;
+
+            const children = map[node];
+            visited ++;
+
+            for (let child of children) {
+                if (child === parent) continue;
+
+                dfs(child, node);
+            }
+        }
+
+        // this is really important concept of starting from zero without parent
+        dfs(0, -1)
+
+         if (recursive) return false;
+
+        return visited === n
+    }
+```
+### Number of Connected Components in an Undirected Graph
+
+The question is similar to the previous one, but we are to find how many connected components are in the graph.
+Connected components actually means how many islands are in the graph.
+
+Example:
+
+Input:
+n=6
+edges=[[0,1], [1,2], [2,3], [4,5]]
+
+Output:
+2
+
+The important catch in this case is remembering that not all nodes from 0 to n have to have neighbors at all.
+We have to verify it.
+
+```javascript
+ function countComponents(n, edges) {
+        if (!edges.length) return n;
+
+        let map = {};
+        for (let edge of edges) {
+            if (map[edge[0]] === undefined) map[edge[0]] = [];
+            if (map[edge[1]] === undefined) map[edge[1]] = [];
+            map[edge[0]].push(edge[1]);
+            map[edge[1]].push(edge[0]);
+        }
+
+        let seen = {}
+        let dfs = function(node, parent) {
+            if (seen[node] !== undefined) return;
+
+            seen[node] = true;
+            const children = map[node];
+            // this is important
+            if (!children )return
+
+            for (let child of children) {
+                if (child === parent) continue;
+                dfs(child, node);
+            }
+        }
+
+        let connections = 0;
+        for (let i = 0; i < n; i ++) {
+            if (seen[i] !== undefined) continue;
+
+            connections++;
+            dfs(i, -1)
+        }
+
+        return connections
+    }
+```
+
+## Redundant Connection (Detecting cycles)
+
+The questions tells us about a tree that all nodes were connected, but one edge was added that created a cycle.
+We need to find that edge.
+
+Important catches:
+
+1. A cycle could happen anywhere in the graph, it could include only a few nodes are the entire graph.
+2. Before an additional edge that is added to create a cycle, all existing nodes are already connected
+3. When dfs'ing to detect a cycle, we must remember to keep track of the node that started the cycle in order to stop the back tracking.
+
+Solution A explanation:
+
+1. We start from the first nodes df'sing while knowing all nodes are connected, so we would reach all of them.
+2. We keep track of visited nodes, once we reach a node that is already visited, we know
+   a. this is a cycle
+   b. the current node is the one who started & ended the cycle
+3. From the parent we backtrack, if we are currently within a cycle we add the child
+4. If the node who edges/started (depending how we look at it) is the current node, we stop the backtracking since we finished the cycle.
+
+```javascript
+function findRedundantConnection(edges) {
+       let map = {};
+
+        for (let edge of edges) {
+            if (map[edge[0]] === undefined) map[edge[0]] = [];
+            if (map[edge[1]] === undefined) map[edge[1]] = [];
+            map[edge[0]].push(edge[1]);
+            map[edge[1]].push(edge[0]);
+        }
+
+        let visited = {};
+        let cycle = {};
+        let startNode = null
+        let dfs = function(node, parent) {
+            if (visited[node] !== undefined) { // we are part of a circle
+                startNode = node;
+                return; // we have no reason to continue rounding about
+            }
+            visited[node] = true;
+
+            if (map[node] === undefined) return false;
+            for (let child of map[node]) {
+                if (child === parent) continue;
+                dfs(child, node);
+                if (startNode !== null) {
+                    cycle[child] = true;
+                    if (node === startNode) {
+                        // we stop the backtracking of the circle
+                        startNode = null
+                    }
+                    return;
+                }
+            }
+        }
+
+        dfs(1, -1)
+
+        for (let i = edges.length -1; i >= 0; i --) {
+            const edge = edges[i];
+            if (cycle[edge[0]] === true && cycle[edge[1]] === true) {
+                return edge;
+            }
+        }
+        return null;
+};
+```
