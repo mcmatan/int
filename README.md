@@ -1844,3 +1844,124 @@ function ladderLength(beginWord, endWord, wordList) {
         return 0;
     }
 ```
+
+### Network Delay Time (Graph with heights)
+
+Questions gives us a list of directional edges with weight on each one. A start node and total nodes count. 
+We should return the min amount of time (calculated by weight) we can start from the starting point and reach all nodes in the graph.
+
+Note:
+If we have one nodes pointing to two others ones, both with weight of 2, that total time would be 2 since at the same 2 seconds it would reach both.
+
+Example:
+
+Input: times = [[1,2,1],[2,3,1],[1,4,4],[3,4,1]], n = 4, k = 1
+
+Output: 3
+
+
+<img src="./images/network-delay-time.png">
+
+
+#### Initial brut force implementation:
+
+The time complexity is O(V * E) because each node could potentially pass though all edges 
+
+The trick here is: 
+1. Checking that we reached all nodes
+2. Checking which node took us the longest, and that is the longest time it would take to pass though all nodes.
+
+If one node took 5 seconds to reach, and others took 3 and 2, by 5 seconds all nodes would be reached
+
+```javascript
+   function networkDelayTime(times, n, k) {
+        let min = new Array(n + 1).fill(Infinity);
+
+        let graph = {};
+        for (let time of times) {
+            if (graph[time[0]] === undefined) graph[time[0]] = [];
+            graph[time[0]].push({des: time[1], cost: [time[2]]})
+        }
+
+        let sum = 0;
+        let visited = {};
+        let dfs = function(node) {
+            if (visited[node] === true) return; // checking for recursive paths
+            visited[node] = true;
+            min[node] = Math.min(sum, min[node]); // min weight to reach the current node
+            
+            // after to OR: if the min weight is higher from the previous one, we have no reason to continue 
+            if (graph[node] === undefined || sum > min[node]) {
+                 visited[node] = false;
+                 return;
+            }
+
+            for (let child of graph[node]) {
+                sum += Number(child.cost);
+                dfs(child.des)
+                sum -= Number(child.cost)
+            }
+            
+            visited[node] = false;
+
+        }
+
+        dfs(k);
+
+        let max = -Infinity;
+        // max seconds to reach a node, or find a node that was never reached
+        for (let i = 1; i <= n; i++) {
+            const res = min[i]
+            max = Math.max(max, res)
+        }
+
+        if (max === Infinity) return -1;
+        return max;
+    }
+```
+
+## Dijkstra's Algorithm (Solving the previous question with O(E Log V))
+
+This algorithm uses a mean heap, and by that, we always go to the next point with the total aggregated weight that is the lowest.
+Because of this, we know that every node we see, we can not visit again since this is the lowest weight we can see it.
+
+We start by pushing the first point with total weight of zero.
+While the min heap exist, we fetch the next item, and if we did not visit it yet, we push it to the heap but with aggregated weight.
+This means items in the heap have the total time it reaches to visit them.
+
+If we visited all nodes, the max time would be the last node we have seen aggregated weight.
+
+```javascript
+function networkDelayTime(times, n, k) {
+        let map = {};
+        for (let time of times) {
+            if (map[time[0]] === undefined) map[time[0]] = []
+            map[time[0]].push([time[1], time[2]])
+        }
+        
+        const minHeap = new MinPriorityQueue((a) => a[0]); // should implememt this, no native javascript one
+        minHeap.enqueue([0, k]); // weight of first is 0 since we start from it
+        let visited = {};
+        let visitedCount = 0;
+        let sum = 0;
+
+        while (!minHeap.isEmpty()) {
+            const next = minHeap.dequeue();
+            if (visited[next[1]] !== undefined) continue;
+            visited[next[1]] = true;
+            visitedCount ++;
+            sum = next[0]
+
+            if (map[next[1]] === undefined) continue;
+            for (let child of map[next[1]]) {
+                if (visited[child[0]] !== undefined) continue;
+
+                minHeap.enqueue([next[0] + child[1], child[0]]) // we push the aggregated weight of the children if we did not visit them yet
+            }
+        }
+
+        if (visitedCount !== n) return -1
+        return sum;
+
+    }
+   ```
