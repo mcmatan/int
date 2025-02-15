@@ -1787,3 +1787,60 @@ these two nodes already exist, and adding the edge would cause a cycle.
     return null;
 }
 ```
+
+### Word Ladder
+
+The question gives us a "startWord" "endWord' and list of words that we could use to reach from start to end.
+But in order to move forward, we need the letter to have at max 1 different letter. For Example:
+
+Input: beginWord = "cat", endWord = "sag", wordList = ["bat","bag","sag","dag","dot"]
+
+The transformation sequence is "cat" -> "bat" -> "bag" -> "sag".
+
+* Explanation
+
+- The trick is first understanding that this is a graph problem. We are trying to reach from one word to another.
+- Another thing is to understand we are trying to find the shortest path, so this can not be done using dfs, we should be using bfs (a queue)
+
+Initially I created a graph with all permutations of each word with * at a different character, this works, but creating all those strings is expensive.
+Instead, we can:
+
+1. Create a set of list of words, this way we can iterate over it and remove with O(1)
+2. Push the first word the a queue
+3. Iterate over the length of queue while incrementing total steps
+4. In other to understand in the list word matches we can compare each letter while checking if total diff is equal to 1.
+5. When there is a match, we can add to queue, and remove from set
+
+
+```javascript
+function ladderLength(beginWord, endWord, wordList) {
+        if (!wordList.includes((endWord))) return 0;
+
+        // Using set would let us add and remove with O(1) while being able to iterate over
+        const ramainingWords = new Set(wordList);
+
+        let queue = [beginWord];
+        let steps = 0;
+
+        while (queue.length) {
+            const length = queue.length;
+            steps++ // increment steps
+            for (let i = 0; i < length; i ++ ) {
+                const word = queue.shift();
+                if (word === endWord) return steps;
+                for (let otherWord of ramainingWords) {
+                    let diff = 0;
+                    for (let i = 0; i < otherWord.length; i ++ ) {
+                        if (word[i] !== otherWord[i]) diff++
+                    }
+                    if (diff === 1) { // if diff is one we know there is a match without pre creating all string permutations
+                        queue.push(otherWord);
+                        ramainingWords.delete(otherWord) // delete is the set function of remove
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
+```
