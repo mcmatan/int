@@ -1965,3 +1965,75 @@ function networkDelayTime(times, n, k) {
 
     }
    ```
+
+
+## Hierholzer's Algorithm and Eulerian Paths
+
+Hierholzer's algorithm helps us find a valid Eulerian path, which is a path that visits all edges in a graph exactly once from start to finish. 
+
+To understand this algorithm, we need to cover the properties of an Eulerian path:
+We must have a maximum of one vertex where (in-degree minus out-degree) equals one (the last vertex), and a maximum of one vertex where (out-degree minus in-degree) equals one (the first vertex).
+Note that in the case of an Eulerian circuit, all nodes have equal in-degrees and out-degrees, and this circuit is also a valid Eulerian path.
+
+Back to the algorithm:
+After determining our starting node (using the in-degree and out-degree calculations), the algorithm allows us to perform a random DFS until hitting a dead end, as long as we keep track of the out-degrees of each vertex. When we hit a dead end, we backtrack while doing two things:
+
+If the current node has zero remaining out-degrees, we add it to our result array
+If not, we perform DFS on the remaining outgoing edges
+
+In short: The algorithm takes into account that when we reach a dead end, it's because there are cycles behind us in the path, and we backtrack while adding these cycles to the main track.
+
+Video https://youtu.be/8MpoO2zA2l4?si=Qe4eOnHey3l4Dikg
+
+<img src="./images/hierholzers.png">
+
+## Reconstruct Flight Path (Solving using Hierholzer's Algorithm )
+
+Questions gives us a list of flights, source and destinations, and we have to return a valid flight order to visit all flight tickets.
+We know that we start from JFK and that there is a valid order.
+
+For example: 
+
+Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+Output: ["JFK","MUC","LHR","SFO","SJC"]
+
+This case is straight forward, all flights are ordered.
+But we could have cases of:
+A. more than one valid path (in this case we should take the alphabetical one)
+B. a path with circuits 
+
+Following the algorithm from above, we will order the opposite (since we start from the end) and dfs until reaching a dead end
+Then adding the vertex with no edges remaining. Every time we visit a out edge vertex, we will remove it so we do not visit it again.
+This way we reach a dead end, add nodes while no children and backtrack finding circuts and add to result.
+
+
+```javascript
+function findItinerary(tickets) {
+    let map = {};
+    for (let ticket of tickets) {
+        if (map[ticket[0]] === undefined) map[ticket[0]] = [];
+        map[ticket[0]].push(ticket[1])
+    }
+
+    for (let ticket of tickets) {
+        // since we want it to be sorted, and we add to the end first
+        // we need to start from the invalid path
+        map[ticket[0]].sort().reverse()
+    }
+
+    let res = [];
+    let dfs = function(vertex) {
+        const children = map[vertex] === undefined ? [] : map[vertex];
+
+        while (children.length) {
+            const child = children.pop() // we remove the current edge in order to not visit it a again
+            dfs(child)
+        }
+
+        // every time there is no more edges we add the node, as the algorithm mentioned no remaining "out" edges
+        res.push(vertex)
+    }
+
+    dfs('JFK');
+    return res.reverse();
+```
