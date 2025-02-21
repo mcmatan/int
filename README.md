@@ -2037,3 +2037,67 @@ function findItinerary(tickets) {
     dfs('JFK');
     return res.reverse();
 ```
+
+### Min Cost to Connect Points (Prime's algorithm)
+
+The question gives us a list of points (x, y) and we need to find the way to connect them with minimum distance between for each edge.
+It seems hard because distance is between two points, and we do not know where to start.
+But the trick is we don't care where to start as long as we continue to push distances from current node to all others to mean heap.
+
+<img src="./images/prims.png">
+
+- We create calculate distances from all nodes to all other nodes (abs(x1 - x2) + abs(y1 - y2))
+- Than we pick the first node from list, since it does not really matter, and push all other nodes distances to a queue
+- We continue to pull from this queue while doing the same thing, making sure we always visit new nodes
+- We are actually spreading like a spider rather than one by one.
+
+What is happening is we are potentially finding closes path to nodes we visited previously, so orderign does not matter.
+At any point, we check which or all distances also from previous visits is the shortest, and add that one.
+
+Total time is 
+N^2 since we iterate on all nodes and another iteration for all other nodes calculating distance
+Multiplied by 
+Log N, which is our min heap
+
+```javascript
+function minCostConnectPoints(points) {
+    let dist = {};
+    for (let i = 0; i < points.length; i ++) {
+        const point = points[i]
+        for (let y = 0; y < points.length; y++) {
+            if (i === y) continue;
+            const toPoint = points[y];
+            const distance =  Math.abs(point[0] - toPoint[0]) + Math.abs(point[1] - toPoint[1]); // this is really important to be absolute value since could be negatvie if not
+            if (dist[i] === undefined) dist[i] = {};
+            if (dist[y] === undefined) dist[y] = {};
+            dist[i][y] = distance;
+            dist[y][i] = distance;
+        }
+    }
+    
+    let minHeap = new MinHeap();
+    let seen = {};
+    seen[0] = true;
+    for (let i = 1; i < points.length; i ++) {
+        minHeap.push({value: dist[0][i], index: i})
+    }
+    let total = 0;
+
+    while (minHeap.stack.length) {
+        const {value, index} = minHeap.pop(); // the target new node
+        if (seen[index] !== undefined) continue;
+        seen[index] = true; // remember to set distance
+
+        for (let destIndex = 0; destIndex < points.length; destIndex ++) {
+            if (destIndex === index) continue;
+            if (seen[destIndex] !== undefined) continue; 
+            
+            minHeap.push({value: dist[destIndex][index], index: destIndex})
+        }
+
+        total += value;
+    }
+
+    return total;
+}
+```
