@@ -2101,3 +2101,63 @@ function minCostConnectPoints(points) {
     return total;
 }
 ```
+
+### Swim in Rising Water (Kruskal's Algorithm)
+
+The questions asks us to find the path with the lowest max. 
+
+Example:
+
+<img src="./images/SwimInRisingWater.png">
+
+We start from the first point, pushing it's value to a min heap.
+While the min heap length exist, we pop the next item, check it's not already visited, set as visited,
+Check it's not the last cell, and push all neighbors.
+
+This means we will move each point to the best overall min value while seeing each cell only once.
+Instead of deciding on a single path and moving forward, we always check if a previous path was smaller
+Than the one we arrived to be at.
+
+Time complexity:
+
+n * n (y * x)
+Multiplied by
+Log n (we could potentially have a lot of values inside the min heap)
+
+
+```javascript
+ function swimInWater(grid) {
+        if (grid.length === 0 || grid[0].length === 0) return 0;
+
+        let minHeap = new MinHeap();
+        minHeap.push({value: grid[0][0], location: [0,0]});
+        let max = -Infinity;
+        let visited = new Set();
+
+        while (minHeap.stack.length) {
+            const {value, location} = minHeap.pop();
+            if (visited.has(value)) continue;
+            visited.add(value);
+            max = Math.max(value, max);
+
+            if (location[0] === grid.length - 1 && location[1] === grid[0].length - 1) {
+                return max;
+            }
+
+            if (location[0] > 0) {
+                minHeap.push({location: [location[0] -1, location[1]], value: grid[location[0] -1][location[1]]});
+            }
+            if (location[0] < grid.length - 1) {
+              minHeap.push({location: [location[0] +1, location[1]], value: grid[location[0] +1][location[1]]});
+            }
+            if (location[1] > 0) {
+                minHeap.push({location: [location[0], location[1]-1], value: grid[location[0]][location[1]-1]});
+            }
+            if (location[1] < grid[0].length - 1) {
+              minHeap.push({location: [location[0], location[1] +1], value: grid[location[0]][location[1] +1]});
+            }
+        }
+
+        return null; // throw
+    }
+```
