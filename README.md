@@ -9,7 +9,7 @@ array.slice(1,4)
 ```
 Slice operates from index inclusive to an exclusive index. When calling slice(0,1) we will get only 0. Same as when calling slice(1,2) we will receive only 1
 
-## Monotonic Stack
+## Monotonic Stack (Missing example)
 
 A monotonic stack is a data structure that maintains elements in either strictly increasing or strictly decreasing order. The fundamental insight is that when we violate this order (e.g., pushing a smaller element onto an increasing stack), we can perform meaningful calculations using the elements being removed.
 
@@ -86,7 +86,7 @@ while (left <= right) {
 }
 ```
 
-- For problems like "Median of Two Sorted Arrays":
+- For problems like "Median of Two Sorted Arrays": (Missing example)
     - Iterate through one array while calculating the corresponding position in the second array
     - Use separator indices instead of value indices since one array might contain all target values
     - Right pointer starts at array length (not length - 1) when using separator indices
