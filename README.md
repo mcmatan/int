@@ -2161,3 +2161,119 @@ Log n (we could potentially have a lot of values inside the min heap)
         return null; // throw
     }
 ```
+
+### DFS Alien Dictionary (Could also be solved using Topological Sort)
+
+The question gives us a list of words, and we are to find the order of the alphabet based on the words.
+The words are in order, as if we would see them in a dictionary.
+For example:
+
+Apple -> Ball -> Cat -> Dog
+
+But if a word starts the same, we should check the next letter, which would be ordered.
+It's guaranteed that the words are in order, so we can compare each letter to the next one.
+
+If we find a mismatch, for example two words with the same prefix but unsorted, we should return empty string.
+For example: 
+Apple -> App 
+This should have been the opposite order.
+
+Or a circular dependency of which we should also return empty string.
+
+Solution:
+
+We compare each word to the next one. Searching for the first letter of mismatch.
+When we found it, we know they are dependent on each other. For example:
+
+Apple -> Cat
+
+We know a is a dependency of c and can add it to the graph.
+In the case of:
+
+Apple -> AppH
+
+We know e is a dependency of H, and we can add it to the graph.
+
+Then we DFS while searching for circular dependencies and creating our results.
+
+```javascript
+ function foreignDictionary(words) {
+        let deps = {};
+
+        for (let second = 1; second < words.length; second++) {
+            const first = second -1;
+            const firstWord = words[first];
+            const secondWord = words[second];
+
+            let diffIndex = 0;
+            let minLength = Math.min(firstWord.length, secondWord.length);
+            // find the first letter that is different
+            while (diffIndex < minLength) {
+                if (firstWord[diffIndex] !== secondWord[diffIndex]) break;
+                diffIndex++
+            }
+            
+            // if we reached the end of the word, we must make sure the first word is shorter or else input is invalid.
+            if (diffIndex === minLength) {
+                if (firstWord.length > secondWord.length) return ""
+            }
+
+            if (minLength === diffIndex) continue;
+            const letter = secondWord[diffIndex];
+            const dep = firstWord[diffIndex];
+            if (deps[letter] === undefined) deps[letter] = [];
+            if (!deps[letter].includes(dep)) deps[letter].push(dep);
+        }
+
+        let res = [];
+        let visited = {};
+        let recursive = false;
+
+        let dfs = function(letter, currentVisited = {}) {
+            if (currentVisited[letter] === true) {
+                recursive = true;
+                return;
+            }
+            // if we reach a visited letter from a different dfs, we know it's already completed.
+            // We know it's not circular because of the check above that validates only current dfs interation
+            if (visited[letter] === true) return;
+
+            currentVisited[letter] = true;
+            visited[letter] = true;
+            const letterDeps = deps[letter];
+
+            if (letterDeps && letterDeps.length) {
+                for (let d of letterDeps) {
+                 dfs(d, currentVisited);
+                }
+            } 
+
+            // when reaching the same letter from a different path, we do not want to treat it as circular
+            currentVisited[letter] = false 
+            // after we visited all dependencies, we can add the letter to the result
+            res.push(letter);
+        }
+
+        for (let letter of Object.keys(deps)) {
+            if (visited[letter] === true) continue;
+            dfs(letter);
+        }
+
+        if (recursive === true) return '';
+
+        for (let word of words) {
+            for (let i = 0; i < word.length; i ++) {
+                const letter = word[i];
+                if (visited[letter] !== undefined) continue;
+                visited[letter] = true;
+                res.push(letter);
+            }
+        }
+
+        return res.join('');
+    }
+```
+
+
+
+
