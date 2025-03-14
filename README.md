@@ -32,6 +32,95 @@ A monotonic stack is a data structure that maintains elements in either strictly
 - Identifying the first element that is greater/smaller
 - Computing areas under specific constraints
 
+# Largest Rectangle in Histogram
+
+## Problem Description
+
+Given an array of integers `heights` representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.
+
+## Solution Approach
+
+This solution uses a monotonic stack algorithm with O(n) time complexity to efficiently find the largest rectangle:
+
+1. We maintain a stack of [height, index] pairs to track both the height and position of bars
+2. For each bar in the histogram:
+    - If it's taller than the previous bar, we simply add it to the stack
+    - If it's shorter, we pop taller bars from the stack and calculate their maximum possible rectangle areas
+3. We use a sentinel value of 0 at the end to ensure all bars are processed
+
+## Code Implementation
+
+```javascript
+/**
+ * Finds the largest rectangle area in a histogram
+ * @param {number[]} heights - Array of non-negative integers representing heights of bars
+ * @return {number} - Area of the largest rectangle
+ */
+function largestRectangleArea(heights) {
+  // Stack stores pairs of [height, index] to track both the height and position
+  let stack = [[heights[0], 0]];
+  
+  // Add a sentinel value of 0 at the end to ensure all bars are processed
+  heights.push(0);
+
+  // Keep track of the maximum area found
+  let max = 0;
+
+  // Iterate through the histogram, starting from the second bar
+  for (let i = 1; i < heights.length; i++) {
+    const current = heights[i];
+
+    // If current height is greater than or equal to the top of stack,
+    // we can just push it to maintain a non-decreasing stack
+    if (current >= stack[stack.length - 1][0]) {
+      stack.push([current, i]);
+    } else {
+      // If current height is smaller, we need to pop elements from stack
+      // to maintain the monotonic property, calculating areas as we go
+      
+      // Save the rightmost index before popping
+      let lastI = stack[stack.length - 1][1];
+      
+      // Keep popping taller bars from stack and calculate their areas
+      while (stack.length && stack[stack.length - 1][0] > current) {
+        const next = stack.pop();
+        
+        // Calculate area: height * width
+        // Width is current index minus the starting index of the bar
+        const area = next[0] * (i - next[1]);
+        max = Math.max(max, area);
+        
+        // Keep track of the leftmost index we've seen
+        // This allows us to extend the current bar to the left
+        lastI = next[1];
+      }
+
+      // Push the current height, but with the leftmost index
+      // This effectively extends the current bar to the left
+      stack.push([current, lastI]);
+    }
+  }
+
+  return max;
+}
+```
+
+## Complexity Analysis
+
+- **Time Complexity**: O(n) - Each element is pushed and popped from the stack at most once
+- **Space Complexity**: O(n) - In the worst case, the stack could contain all elements
+
+## Example
+
+For the input `[2, 1, 5, 6, 2, 3]`:
+1. The algorithm processes each bar and maintains the monotonic stack
+2. When reaching the second `2` (after `6`), it calculates areas for the `6` and `5` bars
+3. The largest rectangle has an area of 10 (height 5 × width 2)
+
+## Key Insight
+
+The key insight is that for any bar, the largest rectangle containing it extends to the nearest shorter bars on both sides. The monotonic stack efficiently helps us find these boundaries.
+
 ## Binary Search
 
 Binary search is a divide-and-conquer algorithm designed to find elements in sorted collections with O(log n) time complexity.
