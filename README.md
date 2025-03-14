@@ -32,13 +32,13 @@ A monotonic stack is a data structure that maintains elements in either strictly
 - Identifying the first element that is greater/smaller
 - Computing areas under specific constraints
 
-# Largest Rectangle in Histogram
+## Example: Largest Rectangle in Histogram
 
-## Problem Description
+### Problem Description
 
 Given an array of integers `heights` representing the histogram's bar height where the width of each bar is 1, return the area of the largest rectangle in the histogram.
 
-## Solution Approach
+### Solution Approach
 
 This solution uses a monotonic stack algorithm with O(n) time complexity to efficiently find the largest rectangle:
 
@@ -48,7 +48,7 @@ This solution uses a monotonic stack algorithm with O(n) time complexity to effi
     - If it's shorter, we pop taller bars from the stack and calculate their maximum possible rectangle areas
 3. We use a sentinel value of 0 at the end to ensure all bars are processed
 
-## Code Implementation
+### Code Implementation
 
 ```javascript
 /**
