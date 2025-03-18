@@ -2363,6 +2363,77 @@ Then we DFS while searching for circular dependencies and creating our results.
     }
 ```
 
+### Cheapest Flights Within K Stops
+
+The question gives us a list of flights, source, destination, and a maximum number of stops.
+We are to find the cheapest flight from source to destination within the maximum number of stops.
+
+Solution explanation: 
+
+- We start by building a map from each airport to its outgoing flights, which takes O(M) time.
+- We initialize our BFS queue with flights departing from the source.
+- For up to K levels, we process the current queue: for each flight, if it reaches the destination we update the minimum price; otherwise, we enqueue its subsequent flights.
+- Without deduplication, the number of flight routes processed could grow exponentially with K.
+- With deduplication, at each level we only process the unique reachable airports, so the work per level is the sum of the outdegrees of these airports. In the worst-case dense graph, that’s O(N²) per level (since M = O(N²)), leading to an overall time of O(M + K · N²) (or equivalently O(M + K · M) in the dense scenario).
 
 
+```javascript
+ findCheapestPrice(n, flights, src, dst, k) {
+        let sourcesMap = {};
+        // create a map pointing to src and all flights from that point
+        for (let flight of flights) {
+            if (sourcesMap[flight[0]] === undefined) sourcesMap[flight[0]] = [];
+            sourcesMap[flight[0]].push(flight)
+        }
+        let bfsQueue = [];
+        let bestPrice = Infinity;
+        let currentNumOfStops = 0;
 
+        // if there are not flights from this point, there is not route to dest
+        const initialFlights = sourcesMap[src];
+        if (!initialFlights || !initialFlights.length) return -1;
+
+        // queue init with all flights from the origin point
+        for (let flight of initialFlights) {
+            bfsQueue.push(flight)
+        }
+        sourcesMap[src] = [];
+
+        // while there are flights remaining to take and stops remanining
+        while (bfsQueue.length && currentNumOfStops <= k) {
+            currentNumOfStops++;
+            const length = bfsQueue.length;
+            let destMap = {}
+            for (let i = 0; i < length; i ++) {
+                const flightRoute = bfsQueue.shift();
+                if (flightRoute[1] === dst) {
+                    bestPrice = Math.min(bestPrice, flightRoute[2])
+                    continue;
+                }
+                
+                const destFlights = sourcesMap[flightRoute[1]];
+                if (!destFlights || !destFlights.length) continue;
+                
+                for (let flight of destFlights) {
+                       if (destMap[flight[1]] === undefined) {
+                            destMap[flight[1]] = [flight[0], flight[1], flight[2] + flightRoute[2]]
+                        } else {
+                            if (destMap[flight[1]][2] > (flight[2] + flightRoute[2])) {
+                                destMap[flight[1]] = [flight[0], flight[1], flight[2] + flightRoute[2]]
+                            }
+                        }
+                }
+            }
+
+             const keys = Object.keys(destMap);
+                for (let key of keys) {
+                    const flight = destMap[key];
+                     bfsQueue.push(flight)   
+                }
+        }
+
+        if (bestPrice === Infinity) return -1
+
+        return bestPrice;
+    }
+```
