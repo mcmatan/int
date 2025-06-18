@@ -1,0 +1,108 @@
+flowchart TD
+    %% ───────── 0. ENTRY ─────────
+    S0["📋 Problem Statement"]
+    S1["Clarify goal:\n• compute value?\n• optimise min/max?\n• enumerate all?"]
+
+    %% ───────── 1. DATA SHAPE ─────────
+    D0{"Primary data type?"}
+    D1["Array / List"]
+    D2["String"]
+    D3["Graph / Tree"]
+    D4["Number / Math"]
+    D5["Grid / Matrix"]
+    D6["Stream / Online"]
+
+    S0 --> S1 --> D0
+    D0 --> D1 & D2 & D3 & D4 & D5 & D6
+
+    %% ───────── 2A. ARRAY PATH ─────────
+    A0{"Need contiguous\nsubarray / window?"}
+    D1 --> A0
+    A0 -- Yes --> A1["Sliding Window\nor Kadane (max-sum)"]
+    A0 -- No --> A2{"Need subset / k-partition?"}
+    A2 -- Yes --> A3["Subset-Sum / Equal-Partition\n⇒ 0-1 Knapsack DP"]
+    A2 -- No --> A4{"Searching / ordering task?"}
+    A4 -- Yes --> A5{"Array already sorted?"}
+    A5 -- Yes --> A6["Binary Search / Two-Pointers"]
+    A5 -- No --> A7["Heap / Hash + sort"]
+    A4 -- No --> A8["Frequency / counting\nHash Map"]
+
+    %% ───────── 2B. STRING PATH ─────────
+    St0{"Prefix or pattern search?"}
+    D2 --> St0
+    St0 -- Prefix --> St1["Trie"]
+    St0 -- Substring --> St2["KMP / Rolling Hash"]
+    St0 -- Edit / align --> St3["2-D DP on indices"]
+
+    %% ───────── 2C. GRAPH PATH ─────────
+    G0{"Weighted edges?"}
+    D3 --> G0
+    G0 -- No --> G1["DFS / BFS"]
+    G1 --> G2{"Many components?"}
+    G2 -- Yes --> G3["Union-Find"]
+    G1 --> G4{"Is DAG?"}
+    G4 -- Yes --> G5["Topological Sort"]
+    G0 -- Yes --> G6["Dijkstra / Bellman-Ford"]
+    G6 --> G7{"Need max-flow / matching?"}
+    G7 -- Yes --> G8["Dinic / Edmonds-Karp"]
+
+    %% ───────── 2D. MATH PATH ─────────
+    M0{"Pure math / number theory?"}
+    D4 --> M0
+    M0 -- Yes --> M1["Math formulas\nGCD / mod / combinatorics"]
+    M0 -- No --> M2["Bit tricks / masks"]
+
+    %% ───────── 2E. GRID PATH ─────────
+    Gr0{"4-way flood fill style?"}
+    D5 --> Gr0
+    Gr0 -- Yes --> Gr1["DFS/BFS flood-fill"]
+    Gr0 -- Path length --> G6
+
+    %% ───────── 2F. STREAM PATH ─────────
+    Str0{"Need running median / max?"}
+    D6 --> Str0
+    Str0 -- Median --> Str1["Two-heaps method"]
+    Str0 -- Window agg --> Str2["Monotonic deque"]
+
+    %% ───────── 3. GREEDY TEST ─────────
+    T0{"Greedy provably optimal?"}
+    A6 --> T0
+    A7 --> T0
+    A8 --> T0
+    St2 --> T0
+    G1 --> T0
+    G6 --> T0
+    Str1 --> T0
+    T0 -- Yes --> GREE["Greedy solution"]
+    T0 -- No --> DP0["Try DP or Backtracking"]
+
+    %% ───────── 4. DP CLASSIFIER ─────────
+    DP0 --> DP1{"Overlap sub-problems?"}
+    DP1 -- Yes --> DP2{"States manageable?"}
+    DP2 -- Yes --> DP3["Memoisation (top-down)"]
+    DP2 -- No --> DP4["Tabulation (bottom-up)"]
+    DP1 -- No --> BT["Backtracking + pruning"]
+
+    %% ───────── 5. META CHECKS ─────────
+    META["Validate: time, space,\nedge cases"]
+    A1 --> META
+    A3 --> META
+    GREE --> META
+    DP3 --> META
+    DP4 --> META
+    BT --> META
+    G3 --> META
+    G5 --> META
+    G8 --> META
+    St3 --> META
+    M1 --> META
+    Gr1 --> META
+    Str2 --> META
+
+    %% ───────── OPTIONAL STYLES ─────────
+    classDef entry fill:#ff6b95,color:#fff,font-weight:bold
+    classDef query fill:#ffd55b,color:#000
+    classDef step fill:#4facfe,color:#fff
+    class S0,S1 entry
+    class D0,A0,A2,A4,A5,A7,A8,St0,G0,G2,G4,G7,M0,Gr0,Str0,T0,DP1,DP2 query
+    class D1,D2,D3,D4,D5,D6,A1,A3,A6,St1,St2,St3,G1,G3,G5,G6,G8,M1,M2,Gr1,Str1,Str2,GREE,DP0,DP3,DP4,BT,META step
